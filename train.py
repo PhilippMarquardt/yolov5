@@ -32,8 +32,8 @@ if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 
 import val  # for end-of-epoch mAP
-from yolomodels.experimental import attempt_load
-from yolomodels.yolo import Model
+from models.experimental import attempt_load
+from models.yolo import Model
 from utils.autoanchor import check_anchors
 from utils.datasets import create_dataloader
 from utils.general import labels_to_class_weights, increment_path, labels_to_image_weights, init_seeds, \
