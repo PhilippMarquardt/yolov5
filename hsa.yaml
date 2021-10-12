@@ -1,8 +1,9 @@
 download: https://github.com/ultralytics/yolov5/releases/download/v1.0/coco128.zip
 names:
 - '0'
-nc: 1
+- '1'
+nc: 2
 path: ../datasets/coco128
 test: null
-train: F:/source/repos/Daten/ObjectDetection/Her2512/train
-val: F:/source/repos/Daten/ObjectDetection/Her2512/valid
+train: F:/source/repos/Daten/ObjectDetection/Roche/RocheObjectDetection/train
+val: F:/source/repos/Daten/ObjectDetection/Roche/RocheObjectDetection/valid
