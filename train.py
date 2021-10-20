@@ -609,6 +609,6 @@ def run(**kwargs):
 
 
 if __name__ == "__main__":
-    opt = parse_opt(known=True)
+    opt = parse_opt()
     print(opt)
     main(opt)
