@@ -58,7 +58,8 @@ WORLD_SIZE = int(os.getenv('WORLD_SIZE', 1))
 def train(hyp,  # path/to/hyp.yaml or hyp dictionary
           opt,
           device,
-          callbacks
+          callbacks,
+          custom_data = {}
           ):
     save_dir, epochs, batch_size, weights, single_cls, evolve, data, cfg, resume, noval, nosave, workers, freeze, = \
         Path(opt.save_dir), opt.epochs, opt.batch_size, opt.weights, opt.single_cls, opt.evolve, opt.data, opt.cfg, \
@@ -375,7 +376,8 @@ def train(hyp,  # path/to/hyp.yaml or hyp dictionary
                         'ema': deepcopy(ema.ema).half(),
                         'updates': ema.updates,
                         'optimizer': optimizer.state_dict(),
-                        'wandb_id': loggers.wandb.wandb_run.id if loggers.wandb else None}
+                        'wandb_id': loggers.wandb.wandb_run.id if loggers.wandb else None,
+                        'custom_data': custom_data}
 
                 # Save last, best and delete
                 torch.save(ckpt, last)
@@ -469,7 +471,7 @@ def parse_opt(known=False):
     return opt
 
 
-def main(opt, callbacks=Callbacks()):
+def main(opt, callbacks=Callbacks(), custom_data = {}):
     # Checks
     set_logging(RANK)
     if RANK in [-1, 0]:
@@ -507,7 +509,7 @@ def main(opt, callbacks=Callbacks()):
 
     # Train
     if not opt.evolve:
-        train(opt.hyp, opt, device, callbacks)
+        train(opt.hyp, opt, device, callbacks, custom_data=custom_data)
         if WORLD_SIZE > 1 and RANK == 0:
             LOGGER.info('Destroying process group... ')
             dist.destroy_process_group()
@@ -588,7 +590,7 @@ def main(opt, callbacks=Callbacks()):
                 hyp[k] = round(hyp[k], 5)  # significant digits
 
             # Train mutation
-            results = train(hyp.copy(), opt, device, callbacks)
+            results = train(hyp.copy(), opt, device, callbacks, custom_data=custom_data)
 
             # Write mutation results
             print_mutation(results, hyp.copy(), save_dir, opt.bucket)
@@ -600,12 +602,12 @@ def main(opt, callbacks=Callbacks()):
               f'Use best hyperparameters example: $ python train.py --hyp {evolve_yaml}')
 
 
-def run(**kwargs):
+def run(custom_data, **kwargs):
     # Usage: import train; train.run(data='coco128.yaml', imgsz=320, weights='yolov5m.pt')
     opt = parse_opt(True)
     for k, v in kwargs.items():
         setattr(opt, k, v)
-    main(opt)
+    main(opt, custom_data=custom_data)
 
 
 if __name__ == "__main__":

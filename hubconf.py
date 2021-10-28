@@ -10,7 +10,7 @@ Usage:
 import torch
 
 
-def _create(name, pretrained=True, channels=3, classes=80, autoshape=True, verbose=True, device=None):
+def _create(name, pretrained=True, channels=3, classes=80, autoshape=True, verbose=True, device=None, return_custom_data=False):
     """Creates a specified YOLOv5 model
 
     Arguments:
@@ -36,14 +36,17 @@ def _create(name, pretrained=True, channels=3, classes=80, autoshape=True, verbo
     file = Path(__file__).resolve()
     check_requirements(exclude=('tensorboard', 'thop', 'opencv-python'))
     set_logging(verbose=verbose)
-
+    custom_data = None
     save_dir = Path('') if str(name).endswith('.pt') else file.parent
     path = (save_dir / name).with_suffix('.pt')  # checkpoint path
     try:
         device = select_device(('0' if torch.cuda.is_available() else 'cpu') if device is None else device)
 
         if pretrained and channels == 3 and classes == 80:
-            model = attempt_load(path, map_location=device)  # download/load FP32 model
+            model = attempt_load(path, map_location=device, return_custom_data=return_custom_data)  # download/load FP32 model
+            if return_custom_data:
+                custom_data = model[1]
+                model = model[0]
         else:
             cfg = list((Path(__file__).parent / 'models.').rglob(f'{name}.yaml'))[0]  # model.yaml path
             model = Model(cfg, channels, classes)  # create model
@@ -57,7 +60,7 @@ def _create(name, pretrained=True, channels=3, classes=80, autoshape=True, verbo
                     model.names = ckpt['model'].names  # set class names attribute
         if autoshape:
             model = model.autoshape()  # for file/URI/PIL/cv2/np inputs and NMS
-        return model.to(device)
+        return model.to(device), custom_data
 
     except Exception as e:
         help_url = 'https://github.com/ultralytics/yolov5/issues/36'
@@ -65,9 +68,9 @@ def _create(name, pretrained=True, channels=3, classes=80, autoshape=True, verbo
         raise Exception(s) from e
 
 
-def custom(path='path/to/model.pt', autoshape=True, verbose=True, device=None):
+def custom(path='path/to/model.pt', autoshape=True, verbose=True, device=None, return_custom_data = False):
     # YOLOv5 custom or local model
-    return _create(path, autoshape=autoshape, verbose=verbose, device=device)
+    return _create(path, autoshape=autoshape, verbose=verbose, device=device, return_custom_data=return_custom_data)
 
 
 def yolov5s(pretrained=True, channels=3, classes=80, autoshape=True, verbose=True, device=None):

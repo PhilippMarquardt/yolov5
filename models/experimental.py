@@ -85,7 +85,7 @@ class Ensemble(nn.ModuleList):
         return y, None  # inference, train output
 
 
-def attempt_load(weights, map_location=None, inplace=True, fuse=True):
+def attempt_load(weights, map_location=None, inplace=True, fuse=True, return_custom_data = False):
     from models.yolo import Detect, Model
 
     # Loads an ensemble of models weights=[a,b,c] or a single model weights=[a] or weights=a
@@ -106,10 +106,20 @@ def attempt_load(weights, map_location=None, inplace=True, fuse=True):
             m._non_persistent_buffers_set = set()  # pytorch 1.6.0 compatibility
 
     if len(model) == 1:
+        if return_custom_data:
+            if "custom_data" in ckpt:
+                return model[-1], ckpt['custom_data']
+            else:
+                return model[-1], {}
         return model[-1]  # return model
     else:
         print(f'Ensemble created with {weights}\n')
         for k in ['names']:
             setattr(model, k, getattr(model[-1], k))
         model.stride = model[torch.argmax(torch.tensor([m.stride.max() for m in model])).int()].stride  # max stride
+        if return_custom_data:
+            if "custom_data" in ckpt:
+                return model, ckpt['custom_data']
+            else:
+                return model, {}
         return model  # return ensemble

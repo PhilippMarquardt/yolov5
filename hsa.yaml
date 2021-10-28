@@ -4,5 +4,5 @@ names:
 nc: 1
 path: ../datasets/coco128
 test: null
-train: F:/source/repos/Daten/ObjectDetection/Her2New/train
-val: F:/source/repos/Daten/ObjectDetection/Her2New/valid
+train: C:/Users/phili/Downloads/Telegram Desktop/ODTest/dataset/train
+val: C:/Users/phili/Downloads/Telegram Desktop/ODTest/dataset/valid
