@@ -4,5 +4,5 @@ names:
 nc: 1
 path: ../datasets/coco128
 test: null
-train: C:/Users/phili/Downloads/Telegram Desktop/ODTest/dataset/train
-val: C:/Users/phili/Downloads/Telegram Desktop/ODTest/dataset/valid
+train: F:/source/repos/VisualDL/custom_experiments/FinalHer2/train
+val: F:/source/repos/VisualDL/custom_experiments/FinalHer2/valid
