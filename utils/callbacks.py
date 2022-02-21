@@ -48,17 +48,21 @@ class Callbacks:
         assert callable(callback), f"callback '{callback}' is not callable"
         self._callbacks[hook].append({'name': name, 'callback': callback})
 
-    def get_registered_actions(self, hook=None):
-        """"
-        Returns all the registered actions by callback hook
+    def register_action(self, hook, name='', callback=None):
+        """
+        Register a new action to a callback hook
 
         Args:
-            hook The name of the hook to check, defaults to all
+            hook        The callback hook name to register the action to
+            name        The name of the action for later reference
+            callback    The callback to fire
         """
-        if hook:
-            return self._callbacks[hook]
+        assert hook in self._callbacks, f"hook '{hook}' not found in callbacks {self._callbacks}"
+        assert callable(callback), f"callback '{callback}' is not callable"
+        if len(self._callbacks[hook]) == 1:
+            self._callbacks[hook][0] = {'name': name, 'callback': callback}
         else:
-            return self._callbacks
+            self._callbacks[hook].append({'name': name, 'callback': callback})
 
     def run(self, hook, *args, **kwargs):
         """
